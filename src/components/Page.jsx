@@ -1,149 +1,110 @@
-import React, { useState, useEffect, useRef } from "react";
-import RunawayButton from "./RunawayButton";
+import React, { useState, useEffect } from 'react';
+import RunawayButton from './RunawayButton';
 
-const Page = ({
-  gifSrc,
-  message,
-  onNext,
-  onPrevious,
-  showPrevious,
-  isLast,
+const Page = ({ 
+  gifSrc, 
+  message, 
+  onNext, 
+  onPrevious, 
+  showPrevious, 
+  isLast, 
   pageNumber,
-  buttons,
+  buttons = [] 
 }) => {
-  const [displayedMessage, setDisplayedMessage] = useState("");
-  const videoRef = useRef(null);
+  const [displayedMessage, setDisplayedMessage] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // ✅ Typewriter fix final
   useEffect(() => {
-    setDisplayedMessage(""); // reset teks tiap halaman baru
-    let index = 0;
-    let isCancelled = false;
+    setDisplayedMessage('');
+    setCurrentIndex(0);
+  }, [message]);
 
-    const typeWriter = () => {
-      if (isCancelled) return;
-      if (index < message.length) {
-        setDisplayedMessage((prev) => prev + message.charAt(index));
-        index++;
-        setTimeout(typeWriter, 50); // jeda 50ms per huruf
-      }
-    };
-
-    typeWriter(); // mulai dari huruf pertama (index 0)
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [pageNumber, message]);
-
-  // ✅ Autoplay video pas halaman berubah
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play().catch((error) => {
-        console.log("Autoplay prevented:", error);
-      });
+    if (currentIndex < message.length) {
+      const timer = setTimeout(() => {
+        setDisplayedMessage(prev => prev + message[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 50);
+      
+      return () => clearTimeout(timer);
     }
-  }, [pageNumber]);
-
-  // ✅ Render tombol normal / runaway
-  const renderButtons = () => {
-    if (!buttons || buttons.length === 0) {
-      return (
-        <button
-          onClick={onNext}
-          className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 border-2 border-pink-600"
-        >
-          {isLast ? "Buka Surat 💌" : "Selanjutnya ➡️"}
-        </button>
-      );
-    }
-
-    return (
-      <div className="flex flex-col items-center space-y-4">
-        {buttons.map((button, index) =>
-          button.runaway ? (
-            <RunawayButton
-              key={index}
-              text={button.text}
-              onButtonClick={button.onClick}
-              pageNumber={pageNumber}
-            />
-          ) : (
-            <button
-              key={index}
-              onClick={button.onClick}
-              className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105 border-2 border-pink-600"
-            >
-              {button.text}
-            </button>
-          )
-        )}
-      </div>
-    );
-  };
-
-  // ✅ Floating hearts dekorasi
-  const floatingHearts = [];
-  for (let i = 0; i < 8; i++) {
-    floatingHearts.push(
-      <div
-        key={i}
-        className="floating-heart"
-        style={{
-          left: `${10 + i * 10}%`,
-          animationDelay: `${i * 0.5}s`,
-          color: i % 2 === 0 ? "#ff6b6b" : "#ff8e8e",
-        }}
-      >
-        ❤️
-      </div>
-    );
-  }
+  }, [currentIndex, message]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative z-10">
-      {/* Tombol Kembali di pojok kiri atas */}
-      {showPrevious && (
-        <button
-          onClick={onPrevious}
-          className="fixed top-4 left-4 bg-pink-300 hover:bg-pink-400 text-pink-800 font-bold py-2 px-4 rounded-full transition duration-300 z-30 flex items-center shadow-lg transform hover:scale-105 border-2 border-pink-400"
-        >
-          ⬅️ Kembali
-        </button>
-      )}
+      {/* Floating hearts */}
+      <div className="floating-hearts">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="floating-heart"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+            }}
+          >
+            ❤️
+          </div>
+        ))}
+      </div>
 
-      <div className="w-full max-w-md">
-        {/* Video Container dengan floating hearts */}
-        <div
-          className="mb-8 rounded-2xl overflow-hidden shadow-2xl relative mx-auto"
-          style={{ width: "320px", height: "320px" }}
-        >
-          <video
-            ref={videoRef}
-            src={gifSrc}
-            autoPlay
-            loop
-            muted
-            className="w-full h-full object-cover"
-            playsInline
+      <div className="w-full max-w-md bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 relative overflow-hidden">
+        {/* Video */}
+        <div className="mb-6 rounded-xl overflow-hidden shadow-lg">
+          <video 
+            src={gifSrc} 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            className="w-full h-auto max-h-64 object-cover"
           />
-          <div className="floating-hearts">{floatingHearts}</div>
-
-          {/* Decorative frame */}
-          <div className="absolute inset-0 border-4 border-white border-opacity-30 rounded-2xl pointer-events-none"></div>
         </div>
 
         {/* Message */}
-        <div className="mb-8 px-4 min-h-20">
-          <p className="text-pink-800 text-center text-lg font-medium leading-relaxed">
+        <div className="mb-8 text-center">
+          <div className="text-pink-800 text-lg font-medium min-h-24 flex items-center justify-center">
             {displayedMessage}
-            <span className="typewriter-cursor">|</span>
-          </p>
+            {currentIndex < message.length && (
+              <span className="typewriter-cursor">|</span>
+            )}
+          </div>
         </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-center items-center">{renderButtons()}</div>
+        {/* Navigation buttons - TOMBOL BIASA */}
+        <div className="flex flex-col gap-3 relative">
+          {buttons.filter(btn => !btn.runaway).map((button, index) => (
+            <button
+              key={index}
+              onClick={button.onClick}
+              className="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg transform hover:scale-105"
+            >
+              {button.text}
+            </button>
+          ))}
+        </div>
+
+        {/* Previous button */}
+        {showPrevious && (
+          <button
+            onClick={onPrevious}
+            className="mt-4 text-pink-600 hover:text-pink-800 font-medium transition duration-300"
+          >
+            ← Kembali
+          </button>
+        )}
       </div>
+
+      {/* TOMBOL RUNAWAY - DITARO DI LUAR KOTAK UTAMA */}
+      {buttons.filter(btn => btn.runaway).map((button, index) => (
+        <RunawayButton
+          key={`runaway-${index}`}
+          text={button.text}
+          onButtonClick={button.onClick}
+          pageNumber={pageNumber}
+        />
+      ))}
     </div>
   );
 };

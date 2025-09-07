@@ -1,4 +1,3 @@
-// File: components/Confetti.js
 import React from 'react';
 import Confetti from 'react-confetti';
 

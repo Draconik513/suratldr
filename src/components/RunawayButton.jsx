@@ -1,8 +1,10 @@
-// File: components/RunawayButton.js
 import React, { useState, useRef, useEffect } from "react";
 
 const RunawayButton = ({ text, onButtonClick, pageNumber }) => {
-  const [position, setPosition] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  const [position, setPosition] = useState({ 
+    x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0, 
+    y: typeof window !== 'undefined' ? window.innerHeight / 2 : 0 
+  });
   const [showMessage, setShowMessage] = useState(false);
   const buttonRef = useRef(null);
 
@@ -56,7 +58,12 @@ const RunawayButton = ({ text, onButtonClick, pageNumber }) => {
   };
 
   useEffect(() => {
-    setPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+    if (typeof window !== 'undefined') {
+      setPosition({ 
+        x: window.innerWidth / 2, 
+        y: window.innerHeight / 2 
+      });
+    }
     setShowMessage(false);
   }, [pageNumber]);
 
@@ -66,12 +73,13 @@ const RunawayButton = ({ text, onButtonClick, pageNumber }) => {
         ref={buttonRef}
         onClick={handleClick}
         style={{
-          position: "absolute",
+          position: "fixed",
           left: `${position.x}px`,
           top: `${position.y}px`,
           transition: "left 0.4s ease-out, top 0.4s ease-out",
+          zIndex: 20
         }}
-        className="bg-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg border-2 border-pink-600"
+        className="bg-pink-500 text-white font-bold py-3 px-8 rounded-full shadow-lg border-2 border-pink-600 runaway-button"
       >
         {text}
       </button>
@@ -79,9 +87,11 @@ const RunawayButton = ({ text, onButtonClick, pageNumber }) => {
       {showMessage && (
         <div
           style={{
-            position: "absolute",
+            position: "fixed",
             left: `${position.x}px`,
-            top: `${position.y + 60}px`,
+            top: `${position.y - 60}px`,
+            zIndex: 30,
+            transform: 'translateX(-50%)'
           }}
           className="bg-white p-3 rounded-lg shadow-lg text-pink-800 font-medium text-center whitespace-nowrap animate-bounce"
         >

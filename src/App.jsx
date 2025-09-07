@@ -1,81 +1,19 @@
-// File: App.js
 import React, { useState } from "react";
-import Page from "./components/Page";
+import Page1 from "./components/Page1";
+import Page2 from "./components/Page2";
+import Page3 from "./components/Page3";
+import Page4 from "./components/Page4";
 import Envelope from "./components/Envelope";
-
-// Import video (pastikan file-file ini ada di folder assets)
-import video1 from "./assets/video1.mp4";
-import video2 from "./assets/video2.mp4";
-import video3 from "./assets/video3.mp4";
-import video4 from "./assets/video4.mp4";
 
 function App() {
   const [currentPage, setCurrentPage] = useState(0);
 
-  // Semua halaman disimpan dalam 1 array
-  const pages = [
-    {
-      video: video1,
-      message: "HHayy sayang 💖 Aku bersyukur banget bisa ketemu kamu. Kamu bikin hari-hariku lebih berarti 🌸",
-      buttons: [
-        {
-          text: "Aku juga bersyukur sayang ❤️",
-          className: "bg-pink-500 hover:bg-pink-600 text-white font-bold",
-          onClick: () => setCurrentPage(1),
-        },
-      ],
-    },
-    {
-      video: video2,
-      message: "KKadang aku suka marah, tapi itu karena aku sayang banget sama kamu. Maafin aku ya 🌈",
-      buttons: [
-        {
-          text: "Aku maafin sayangg 😊",
-          className: "bg-pink-500 hover:bg-pink-600 text-white font-bold",
-          onClick: () => setCurrentPage(2),
-        },
-        {
-          text: "Masih kesal nih 😠",
-          runaway: true, // biar tombol bisa dibuat 'lari'
-          onClick: () => console.log("Tombol tidak bisa diklik"),
-        },
-      ],
-    },
-    {
-      video: video3,
-      message: "AAku selalu mikirin kamu 🥹 Dari bangun sampai tidur lagi, kamu tuh ada terus di pikiranku 😭",
-      buttons: [
-        {
-          text: "Kamu juga selalu di pikiranku sayang❤️",
-          className: "bg-pink-500 hover:bg-pink-600 text-white font-bold",
-          onClick: () => setCurrentPage(3),
-        },
-        {
-          text: "Bohong deh 🙄",
-          runaway: true,
-          onClick: () => console.log("Tombol tidak bisa diklik"),
-        },
-      ],
-    },
-    {
-      video: video4,
-      message: "TTerima kasih udah nerima aku apa adanya. Aku janji bakal selalu sayang sama kamu 🏡",
-      buttons: [
-        {
-          text: "Buka Surat Cinta 💌",
-          className: "bg-pink-500 hover:bg-pink-600 text-white font-bold",
-          onClick: () => setCurrentPage(4),
-        },
-      ],
-    },
-  ];
-
   // Fungsi next page
   const nextPage = () => {
-    if (currentPage < pages.length - 1) {
+    if (currentPage < 3) {
       setCurrentPage(currentPage + 1);
     } else {
-      setCurrentPage(pages.length);
+      setCurrentPage(4); // Halaman amplop
     }
   };
 
@@ -89,6 +27,52 @@ function App() {
   // Kembali ke halaman pertama
   const goToFirstPage = () => {
     setCurrentPage(0);
+  };
+
+  // Render halaman berdasarkan currentPage
+  const renderPage = () => {
+    switch(currentPage) {
+      case 0:
+        return (
+          <Page1 
+            onNext={nextPage} 
+            onPrevious={previousPage} 
+            showPrevious={false} 
+            pageNumber={0}
+          />
+        );
+      case 1:
+        return (
+          <Page2 
+            onNext={nextPage} 
+            onPrevious={previousPage} 
+            showPrevious={true} 
+            pageNumber={1}
+          />
+        );
+      case 2:
+        return (
+          <Page3 
+            onNext={nextPage} 
+            onPrevious={previousPage} 
+            showPrevious={true} 
+            pageNumber={2}
+          />
+        );
+      case 3:
+        return (
+          <Page4 
+            onNext={nextPage} 
+            onPrevious={previousPage} 
+            showPrevious={true} 
+            pageNumber={3}
+          />
+        );
+      case 4:
+        return <Envelope onBack={goToFirstPage} />;
+      default:
+        return <Page1 onNext={nextPage} onPrevious={previousPage} showPrevious={false} pageNumber={0} />;
+    }
   };
 
   return (
@@ -111,21 +95,7 @@ function App() {
         ))}
       </div>
 
-      {/* Render halaman */}
-      {currentPage < pages.length ? (
-        <Page
-          gifSrc={pages[currentPage].video}
-          message={pages[currentPage].message}
-          onNext={nextPage}
-          onPrevious={previousPage}
-          showPrevious={currentPage > 0}
-          isLast={currentPage === pages.length - 1}
-          pageNumber={currentPage}
-          buttons={pages[currentPage].buttons}
-        />
-      ) : (
-        <Envelope onBack={goToFirstPage} />
-      )}
+      {renderPage()}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// File: components/Envelope.js
 import React, { useState } from 'react';
 import ConfettiEffect from './Confetti';
 
